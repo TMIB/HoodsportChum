@@ -1,4 +1,13 @@
 
+##Check for installed packages. Citation for this code:
+##http://stackoverflow.com/questions/4090169/elegant-way-to-check-for-missing-packages-and-install-them
+
+list.of.packages <- c("dplyr", "XML", "ggplot2")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)>0) {install.packages(new.packages)} 
+require(dplyr)
+require(XML)
+require(ggplot2)
 
 #create the empty data frame with correct data types
 HoodsportData<-data.frame(Date=as.Date(character()),
@@ -26,6 +35,7 @@ for (reportyear in 2005:2012)
      #run through all the links on the host page
      for (i in 1:nrow(links))
      {
+       #use a tryCatch here, as some of the URLs are broken.
           thistable<- tryCatch(readHTMLTable(as.character(links[i,]), stringsAsFactors = FALSE), error = function(e) e)
           
           if(inherits(thistable, "error")) next
@@ -72,8 +82,6 @@ chumreturn<-filter(chumreturn, chumperangler >0)
 names(chumreturn)[names(chumreturn)=='Sample.Date']<- "Date"
 
 HoodsportData<-rbind(chumreturn,HoodsportData)
-
-
 
 WeekOfYear<-as.numeric()
 for (i in 42:51){WeekOfYear<-c(WeekOfYear,i)}
