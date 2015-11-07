@@ -2,15 +2,16 @@
 ##Check for installed packages. Citation for this code:
 ##http://stackoverflow.com/questions/4090169/elegant-way-to-check-for-missing-packages-and-install-them
 
-list.of.packages <- c("dplyr", "XML", "ggplot2")
+list.of.packages <- c("dplyr", "XML", "ggplot2", "grid")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)>0) {install.packages(new.packages)} 
 require(dplyr)
 require(XML)
 require(ggplot2)
+require(grid)
 
 #create the empty data frame with correct data types
-HoodsportData<-data.frame(Date=as.Date(character()),
+hoodsportdata<-data.frame(Date=as.Date(character()),
                           Anglers=numeric(),
                           Chum=numeric(),
                           stringsAsFactors = FALSE)
@@ -49,14 +50,14 @@ for (reportyear in 2005:2012)
           #filter the table for only Hoodsport shore data
           filteredtable<-filter(filteredtable, Site == "Hoodsport Shore")
           
-          HoodsportData<-rbind(HoodsportData, filteredtable)
+          hoodsportdata<-rbind(hoodsportdata, filteredtable)
           i <- i + 1
      }
 }
-HoodsportData <-mutate(HoodsportData, chumperangler = as.numeric(Chum)/as.numeric(Anglers))
-HoodsportData <-filter(HoodsportData, chumperangler >0)
-HoodsportData<-mutate(HoodsportData, Date = mdy(Date))
-HoodsportData<-HoodsportData[,c("Date", "Anglers", "Chum", "chumperangler")]
+hoodsportdata <-mutate(hoodsportdata, chumperangler = as.numeric(Chum)/as.numeric(Anglers))
+hoodsportdata <-filter(hoodsportdata, chumperangler >0)
+hoodsportdata<-mutate(hoodsportdata, Date = mdy(Date))
+hoodsportdata<-hoodsportdata[,c("Date", "Anglers", "Chum", "chumperangler")]
 
 
 #now we have data from 2005-2012. Let's get 2013 and 2014 (different format)
@@ -76,31 +77,85 @@ df<-mutate(df, chumperangler = as.numeric(Chum)/as.numeric(Anglers))
 
 chumreturn<-df[,c("Sample.Date", "Anglers", "Chum", "chumperangler")]
 
-#remove the rows with no data
-chumreturn<-filter(chumreturn, chumperangler >0)
-
 names(chumreturn)[names(chumreturn)=='Sample.Date']<- "Date"
 
-HoodsportData<-rbind(chumreturn,HoodsportData)
+hoodsportdata<-rbind(chumreturn,hoodsportdata)
 
-WeekOfYear<-as.numeric()
-for (i in 42:51){WeekOfYear<-c(WeekOfYear,i)}
+#remove any week that has had 2 or fewer observations in 10 years.
+for (i in 42:51)
+{
+  countofobservations<- sum(week(hoodsportdata$Date) == i)
+  if (countofobservations <= 2)
+  {
+    hoodsportdata<-filter(hoodsportdata, week(hoodsportdata$Date) != i)
+  }
+  
+ 
+}
 
-MeanData<-as.numeric()
+weekofyear<-as.numeric()
+for (i in 42:51){weekofyear<-c(weekofyear,i)}
+
+meandata<-as.numeric()
 
 for (i in 42:51)
 {
-     MeanData<-c(MeanData,mean(HoodsportData$chumperangler[week(HoodsportData$Date)==i]) )
+     meandata<-c(meandata,mean(hoodsportdata$chumperangler[week(hoodsportdata$Date)==i]) )
 }
 
-rollup<-data.frame(WeekOfYear,MeanData)
-MyPlot<-ggplot(rollup, aes(rollup$WeekOfYear, rollup$MeanData))+ geom_bar(stat="identity")+
+anglerdata<-as.numeric()
+
+for (i in 42:51)
+{
+  anglerdata<-c(anglerdata,mean(as.numeric(hoodsportdata$Anglers[week(hoodsportdata$Date)==i])) )
+}
+
+catchrollup<-data.frame(weekofyear,meandata)
+anglerrollup<-data.frame(weekofyear,anglerdata)
+
+
+
+#multiplot function from the R cookbook
+#(http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_%28ggplot2%29/)
+multiplot <- function(..., plotlist=NULL, cols) {
+  require(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # Make the panel
+  plotCols = cols                       # Number of columns of plots
+  plotRows = ceiling(numPlots/plotCols) # Number of rows needed, calculated from # of cols
+  
+  # Set up the page
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(plotRows, plotCols)))
+  vplayout <- function(x, y)
+    viewport(layout.pos.row = x, layout.pos.col = y)
+  
+  # Make each plot, in the correct location
+  for (i in 1:numPlots) {
+    curRow = ceiling(i/plotCols)
+    curCol = (i-1) %% plotCols + 1
+    print(plots[[i]], vp = vplayout(curRow, curCol ))
+  }
+  
+}
+
+
+catchplot<-ggplot(catchrollup, aes(catchrollup$weekofyear, catchrollup$meandata))+ geom_bar(stat="identity")+
      scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
      ylab("Mean fish per angler")+xlab("Week of Year")+
      ggtitle("Hoodsport Chum 2005-2015")
 
+anglerplot<-ggplot(anglerrollup, aes(anglerrollup$weekofyear, anglerrollup$anglerdata))+ geom_bar(stat="identity")+
+  scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
+  ylab("Mean number of anglers")+xlab("Week of Year")+
+  ggtitle("Hoodsport Chum 2005-2015")
 
-jpeg(filename = "Myplot.jpg", width=1024, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
-MyPlot
+jpeg(filename = "hoodsport.jpg", width=1024, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
+multiplot(catchplot, anglerplot, cols=1)
 dev.off()
 
