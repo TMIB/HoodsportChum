@@ -21,14 +21,16 @@ Next, I used the same data to determine the mean number of anglers per week over
 The plots may be found in hoodsport.jpg. 
 
 
-The first "Sweet spot" is the 44th week of the calendar year. Average number of anglers is 35.5 that week, and average fish caught per angler is 1.69.
-Fishing goes down slightly on week 45; seeing on average, 1.5 fish caught per angler, with 47.9 anglers trying their luck.
-Week 46 has on average only 1.1 fish caught per angler, but there are fewer folks trying with an average of 24.8 folks out there fishing. That's ~ a 48% drop in people from the previous week.
-Week 47 is hard fishing, with .87 fish caught per angler, but fewer folks to contend with, 21 people on average.
-Week 48 seems to be a second "sweet spot"; barely anyone fishing, only 13 folks on average, but they are doing pretty well, with 1.21 fish per angler.
+The first "Sweet spot" is the 44th week of the calendar year. Average number of anglers is 36.13 that week, and average fish caught per angler is 1.77.  
+Fishing goes down slightly on week 45; seeing on average, 1.48 fish caught per angler, with 45.5 anglers trying their luck.  
+Week 46 has on average only 1.1 fish caught per angler, but there are fewer folks trying with an average of 24.8 folks out there fishing. That's ~ a 48% drop in people from the previous week.  
+Week 47 is hard fishing, with .87 fish caught per angler, but fewer folks to contend with, 21 people on average.  
+Week 48 seems to be a second "sweet spot"; barely anyone fishing, only 13 folks on average, but they are doing pretty well, with 1.21 fish per angler  
 
 
-Next exercise will be to separate the data into even and odd years. Since Pink salmon run only in odd years, we can look at whether
-the chum salmon runs tend to be earlier or later on years when the Pink salmon return.
+
+Next steps: 
+Separate the data into even and odd years. Since Pink salmon run only in odd years, we can look at whether the chum salmon runs tend to be earlier or later on years when the Pink salmon return.  
+Run a similar analysis using the hatchery escapement reports
 
 
