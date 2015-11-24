@@ -30,7 +30,7 @@ Week 48 seems to be a second "sweet spot"; barely anyone fishing, only 13 folks 
 
 
 Next steps: 
-Separate the data into even and odd years. Since Pink salmon run only in odd years, we can look at whether the chum salmon runs tend to be earlier or later on years when the Pink salmon return.  
+Make the plots prettier (line graphs, perhaps?)
 Run a similar analysis using the hatchery escapement reports
 
 
