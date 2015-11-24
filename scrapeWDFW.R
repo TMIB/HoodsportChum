@@ -89,30 +89,47 @@ for (i in 42:51)
   {
     hoodsportdata<-filter(hoodsportdata, week(hoodsportdata$Date) != i)
   }
-  
- 
 }
+
+is.even <- function(x) x %% 2 == 0 
+is.odd <- function(x) x %% 2 != 0 
+evenyears<-filter(hoodsportdata, is.even(year(hoodsportdata$Date)))
+oddyears<-filter(hoodsportdata, is.odd(year(hoodsportdata$Date)))
 
 weekofyear<-as.numeric()
 for (i in 42:51){weekofyear<-c(weekofyear,i)}
 
 meandata<-as.numeric()
-
+pinkmeandata<-as.numeric()
+nonpinkmeandata<-as.numeric()
+anglerdata<-as.numeric()
+pinkanglerdata<-as.numeric()
+nonpinkanglerdata<-as.numeric()
 for (i in 42:51)
 {
      meandata<-c(meandata,mean(hoodsportdata$chumperangler[week(hoodsportdata$Date)==i]) )
+     pinkmeandata<-c(pinkmeandata,mean(oddyears$chumperangler[week(oddyears$Date)==i]) )
+     nonpinkmeandata<-c(nonpinkmeandata,mean(evenyears$chumperangler[week(evenyears$Date)==i]) )
+     anglerdata<-c(anglerdata,mean(as.numeric(hoodsportdata$Anglers[week(hoodsportdata$Date)==i])) )
+     pinkanglerdata<-c(pinkanglerdata,mean(as.numeric(oddyears$Anglers[week(oddyears$Date)==i])) )
+     nonpinkanglerdata<-c(nonpinkanglerdata,mean(as.numeric(evenyears$Anglers[week(evenyears$Date)==i])) )
 }
 
-anglerdata<-as.numeric()
-
-for (i in 42:51)
-{
-  anglerdata<-c(anglerdata,mean(as.numeric(hoodsportdata$Anglers[week(hoodsportdata$Date)==i])) )
-}
 
 catchrollup<-data.frame(weekofyear,meandata)
 anglerrollup<-data.frame(weekofyear,anglerdata)
 
+pinkcatchrollup<-data.frame(weekofyear,pinkmeandata)
+pinkcatchrollup<-pinkcatchrollup[complete.cases(pinkcatchrollup),]
+
+pinkanglerrollup<-data.frame(weekofyear,pinkanglerdata)
+pinkanglerrollup<-pinkanglerrollup[complete.cases(pinkanglerrollup),]
+
+nonpinkcatchrollup<-data.frame(weekofyear,nonpinkmeandata)
+nonpinkcatchrollup<-nonpinkcatchrollup[complete.cases(nonpinkcatchrollup),]
+
+nonpinkanglerrollup<-data.frame(weekofyear,nonpinkanglerdata)
+nonpinkanglerrollup<-nonpinkanglerrollup[complete.cases(nonpinkanglerrollup),]
 
 
 #multiplot function from the R cookbook
@@ -155,7 +172,28 @@ anglerplot<-ggplot(anglerrollup, aes(anglerrollup$weekofyear, anglerrollup$angle
   ylab("Mean number of anglers")+xlab("Week of Year")+
   ggtitle("Hoodsport Chum 2005-2015")
 
-jpeg(filename = "hoodsport.jpg", width=1024, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
-multiplot(catchplot, anglerplot, cols=1)
+pinkcatchplot<-ggplot(pinkcatchrollup, aes(pinkcatchrollup$weekofyear, pinkcatchrollup$pinkmeandata))+ geom_bar(stat="identity")+
+     scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
+     ylab("Mean fish per angler")+xlab("Week of Year")+
+     ggtitle("Hoodsport Chum during pink salmon (odd) years 2005-2015")
+
+pinkanglerplot<-ggplot(pinkanglerrollup, aes(pinkanglerrollup$weekofyear, pinkanglerrollup$pinkanglerdata))+ geom_bar(stat="identity")+
+     scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
+     ylab("Mean number of anglers")+xlab("Week of Year")+
+     ggtitle("Hoodsport Chum during pink salmon (odd) years 2005-2015")
+
+nonpinkcatchplot<-ggplot(nonpinkcatchrollup, aes(nonpinkcatchrollup$weekofyear, nonpinkcatchrollup$nonpinkmeandata))+ geom_bar(stat="identity")+
+     scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
+     ylab("Mean fish per angler")+xlab("Week of Year")+
+     ggtitle("Hoodsport Chum during non-pink salmon (even) years 2006-2014")
+
+nonpinkanglerplot<-ggplot(nonpinkanglerrollup, aes(nonpinkanglerrollup$weekofyear, nonpinkanglerrollup$nonpinkanglerdata))+ geom_bar(stat="identity")+
+     scale_x_continuous(breaks=42:51, minor_breaks=NULL)+
+     ylab("Mean number of anglers")+xlab("Week of Year")+
+     ggtitle("Hoodsport Chum during non-pink salmon (even) years 2006-2014")
+
+
+jpeg(filename = "hoodsport.jpg", width=1024, height = 768, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
+multiplot(catchplot, anglerplot, pinkcatchplot, pinkanglerplot, nonpinkcatchplot, nonpinkanglerplot, cols=1)
 dev.off()
 
