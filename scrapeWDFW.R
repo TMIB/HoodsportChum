@@ -193,7 +193,7 @@ nonpinkanglerplot<-ggplot(nonpinkanglerrollup, aes(nonpinkanglerrollup$weekofyea
      ggtitle("Hoodsport Chum during non-pink salmon (even) years 2006-2014")
 
 
-jpeg(filename = "hoodsport.jpg", width=1024, height = 768, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
+jpeg(filename = "hoodsport.jpg", width=1024, height = 800, pointsize =12, quality = 200, bg = "white", res = NA, restoreConsole = TRUE)
 multiplot(catchplot, anglerplot, pinkcatchplot, pinkanglerplot, nonpinkcatchplot, nonpinkanglerplot, cols=1)
 dev.off()
 
